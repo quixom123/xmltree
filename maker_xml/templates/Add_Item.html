@@ -1,0 +1,152 @@
+<html>
+<head>
+{% load staticfiles %}
+<link rel='stylesheet' href="/static/css/bootstrap.min.css" type='text/css'>
+<link rel='stylesheet' href="/static/css/style.css" type='text/css'>
+<style type="text/css">
+	.info{
+		padding: 10px;
+		background-color: #333 !important;
+	}
+</style>
+</head>
+<body>
+
+<center>
+	<div class='main1' style="background-color:#666; color:white;">
+	<div class='dv1'>
+		<table class='tbmain' width='400'>
+		<tr>
+		
+		<td  class='info' colspan='2'>
+			ITEM DATA
+		</td>
+		</tr>
+		</table>		
+		<br>
+		
+		<div class='cantainer'>
+			<div class='cantainerleft'>
+				<label>Title </label>
+			</div>
+			
+			<div class='cantainerright'>
+				<input type="text" class="form-control" id="item-title">
+			</div>
+		</div>
+		<br>
+		
+		<div class='newsublink'>
+		</div>
+		
+		<div class='cantainer'>
+			<div class='cantainerleft'>
+				<label>
+					Sub Link
+				</label>
+			</div>
+			<div class='cantainerright' >
+				<input type='text' id='item-sublink' class='new-sublink form-control'> 
+				<input type='button' id='add-sublink' value='+ add sublink' class="btn btn-success btn-block">
+			</div>
+		</div>
+		<br>
+		
+		<div class='cantainer'>
+			<div class='cantainerleft'>
+				
+					<label>Thumb </label>
+			</div>
+			<div class='cantainerright'>
+			<input type="text" id="thumb-file" class="form-control">
+			</div>
+		</div>
+		<br>
+		<div class='dv-sublink hide cantainer'>
+			<div class='cantainerleft'>
+				<label>
+					Sub Link
+				</label>
+			</div>
+			<div class='cantainerright'>
+				<input type='text' class='sublink form-control'/>
+			</div>
+		</div>
+	
+	<div style='border-top:1px solid Blue; padding-bottom:10px;'>
+	<br>
+		<input class="btn btn-success" type='Button' value='Save' id='save-xml-btn' />
+		<input class="btn btn-info" type='Button' value='Reset' id='Reset' />
+	</div>
+	</div>
+	
+	<script src="/static/js/jquery.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$('#add-sublink').click(function(){
+			              
+
+
+				form = $('.dv-sublink').clone();
+				form.removeAttr('id');
+				form.removeClass('hide , dv-sublink');
+				form.find('.sublink').removeClass('sublink').addClass('new-sublink');
+			
+				console.log(form);
+			
+				$('.newsublink').append(form);
+			
+			
+				
+			});
+		
+		});
+	</script>
+	
+	<script>
+	$(document).on('click','#save-xml-btn',function(){
+		var fd = new FormData();
+		var arr = [];
+		var parent = '';
+		var fd = new FormData();	
+		$('#path').find('li').each(function(){
+		if ($(this).find('a').text() == 'root') {
+		}
+		else{parent = $(this).find('a').text() + '/';
+		}
+		});
+
+		parent = parent.substring(0, parent.length - 1);
+		
+		fd.append('item_title',$('#item-title').val() );
+		fd.append('item_thumbnail', $('#thumb-file').val() );
+		fd.append('file_is', $(this).closest('#load-file').attr('data-fileis'));
+		fd.append('parent',parent);
+
+		
+
+		$('.new-sublink').each(function(){
+			if($(this).val() != ''){
+				arr.push($(this).val());
+			}
+		});
+		console.log(arr)
+		fd.append('sublink', arr);
+	
+		$.ajax({
+				url: '/xmltree/Add_Record/',
+				data: fd,
+				type: 'POST',
+				processData: false,
+				contentType: false,
+				success: function(data){
+					alert('success')
+				}
+		
+		
+		}); 
+	
+	});
+	</script>
+	

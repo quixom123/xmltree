@@ -1,0 +1,84 @@
+<html>
+<head>
+{% load staticfiles %}
+<link rel='stylesheet' href="/static/css/style.css" type='text/css'>
+</head>
+
+<body>
+
+
+
+	<div class='dvtreemain'>
+
+
+
+		<ul>
+		<li>
+		{{ Path }}
+			<ul>
+			<li>
+			xml1
+			<ul>
+				<li>
+					xml
+				</li>
+				<li>
+
+					<a href="/xmltree/showdata/?file_is=xml1\hello1.xml" > hello1.xml </a>
+					
+				</li>
+			</li>
+			</ul>
+			<li>
+				xml2
+				<ul>
+				<li>
+					xml
+				</li>
+				<li>
+					<a href="/xmltree/showdata/?file_is=xml2\test.xml"> test.xml </a>
+
+				</li>
+				</ul>
+			</li>
+
+			<li>
+
+			{% for i in file %}
+				<li>
+				<a href="/xmltree/showdata/?file_is =  {{ Path }}  {{ i }} " > {{i}} </a>
+				</li>
+				
+			{% endfor %}
+
+			
+			</ul>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>
+
+<script src="/static/js/jquery.js"></script>
+<script>
+	
+	$(document).ready(function(){
+
+				$('#a-link-hello').click(function(){
+						
+						var c = "xml1\hello1.xml";
+						alert(c)
+						var query= '?file_is='+encodeURIComponent(c);
+						var uri= '/xmltree/showdata/?file_is='+encodeURIComponent(query);
+						window.location.href = uri;
+
+				});
+
+
+		
+		
+	});
+
+
+
+</script>

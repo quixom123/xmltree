@@ -1,0 +1,8 @@
+<data>
+  <poster>This is postername</poster>
+  <fanart>http://192.168.1.114:8000/xmltree/listout/</fanart>
+  <info>
+    <message>Sample message</message>
+    <thumbnail>http://192.168.1.114:8000/xmltree/listout/</thumbnail>
+  </info>
+<item><title>title for first item</title><link><sublink>http://192.168.1.114:8000/xmltree/listout/</sublink><sublink>http://192.168.1.114:8000/xmltree/listout/</sublink><sublink>http://192.168.1.114:8000/xmltree/listout/</sublink></link><thumbnail>http://192.168.1.114:8000/xmltree/listout/</thumbnail></item></data>

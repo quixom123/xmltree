@@ -1,0 +1,373 @@
+<html>
+<head>
+<link rel='stylesheet' href="/static/css/bootstrap.min.css" type='text/css'>
+<link rel='stylesheet' href="/static/css/font-awesome.min.css" type='text/css'>
+<style type="text/css">
+	.file, .dir{
+		text-align: center;
+		display: table-cell;
+		vertical-align: middle;
+		padding: 10px;
+	}
+	.table{
+		display: table;
+	}
+	.file .elem{
+		background: blue;
+		display: table-cell;
+		width: 100px;
+		height: 100px;
+		vertical-align: middle;
+	}
+	.dir .elem{
+		background: yellow;
+		display: table-cell;
+		width: 100px;
+		height: 100px;
+		vertical-align: middle;
+	}
+	#path, ul{
+		list-style-type: none;
+		padding: 0px;
+	}
+	ul li{
+		margin: 5px;
+	}
+	#path li{
+		margin-right: 10px;
+		display: inline-block;
+	}
+	.files a{
+		margin-right: 10px;
+	}
+	.dirs input{
+		margin-right: 10px;
+	}
+
+</style>
+</head>
+<body style="background-color:white;">
+<div class="col-sm-12">
+<div class="col-sm-3">
+<ul id="path" class="breadcrumb"><li><a href="/xmltree/listout/">root</a></li></ul>
+
+
+<div class="modal fade" id="create-folder-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+	<div class="dv-create-folder" style="padding-top:10px;">
+	&nbsp;&nbsp;&nbsp;
+	</div>        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        
+        <input type='button' id='btn-folder-ok'  value='Submit' class='btn btn-success' > 
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<div id="box">
+{% for obj in tree %}
+	<div>
+	{% if obj == 'files' %}	
+		<h4>Files</h4>
+		<ul class="table files">
+		{% for file_elem in tree.files %}
+			<li>
+				<span class="btn file-link-all" data-fileis="{{ file_elem }}" data-href="/xmltree/showfilehtml/?file_is={{ file_elem }}" ><i class="fa fa-file"></i> {{file_elem}} </span>
+				<div class="pull-right">
+					<button class="btn btn-success file-link"  data-href="/xmltree/showdata/?file_is={{ file_elem }}"><i class="fa fa-pencil"></i></button>
+					<button class="btn btn-info add-record-link" data-fileis="{{ file_elem }}" data-href="/xmltree/Add_Record/?file_is={{ file_elem }}"><i class="fa fa-plus"></i></button>
+					<button class="btn btn-danger delete-record-link" data-fileis="{{ file_elem }}"><i class="fa fa-trash-o"></i></button>
+				</div>
+			</li>
+		{% endfor %}
+		</ul><hr>
+	{% elif obj = 'dirs' %}
+		<h4>Directories</h4>
+		<ul class="table dirs">
+		{% for dir_elem in tree.dirs %}
+			<li>
+			<span class='btn-dir btn text-warning' value=""  ><i class="fa fa-folder"></i> {{ dir_elem }}</span>
+			<div class="pull-right">
+				<button class="btn btn-danger delete-folder-link" data-fileis="{{ dir_elem }}"><i class="fa fa-trash-o"></i></button>
+			</div>
+			</li>
+		{% endfor %}
+		</ul>
+	{% endif %}	
+	</div>
+{% endfor %}
+</div>
+</div>
+<div class="col-sm-9" style="border-left: 1px #999 solid;height: 100%; background-color:white;">
+	<div id="header">
+		<div class="col-sm-12">
+			<input type="button" id='btn-create-folder'  value="Create New Folder" class="btn btn-info" data-toggle="modal" data-target="#create-folder-modal"/>
+			<input type="button" id='btn-create-file'  value="Create New File" class="btn btn-info" />
+		</div>
+	</div>
+	<div id="load-file"></div>
+</div>
+</div>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script>
+		var update_xml_data_file;
+		var csrf_token = '{{ csrf_token }}';
+		$(document).ready(function(){
+
+				$(document).on("click",'#btn-create-folder' ,function(){
+					$('.dv-create-folder').html("<div class='form-group'><input type='text' id='txt-folder-name' class='form-control' placeholder='new folder name'> </div>");
+				});
+
+				$(document).on("click",'#btn-folder-ok' ,function(){
+					var parent = '';
+					var fd = new FormData();	
+					$('#path').find('li').each(function(){
+						if ($(this).find('a').text() == 'root') {
+
+						}else{
+							parent += $(this).find('a').text() + '/';
+						}
+					});
+
+					parent = parent.substring(0, parent.length - 1);
+					
+					var dir_name =  $('#txt-folder-name').val();
+					fd.append('parent' , parent);
+					fd.append('folder_name', dir_name);
+					
+					$.ajax({
+
+						url: "/xmltree/create_folder/",
+						type: 'POST',
+						data:fd,
+						processData: false,
+						contentType: false,
+						success: function(data){
+							if (data == 'ok') {		
+								alert('Folder successfully created');						
+								$('#create-folder-modal').modal('hide');
+								$('.dirs').append('<li>	\
+									<span class="btn-dir btn text-warning "><i class="fa fa-folder"></i> '+dir_name+'</span> \
+									<div class="pull-right">	\
+										<button class="btn btn-danger delete-folder-link" data-fileis="'+dir_name+'"><i class="fa fa-trash-o"></i></button>	\
+									</div>	\
+								</li>');
+							}
+							else{
+								alert('Folder already exists');
+							}
+							
+						}
+					})
+
+
+				});
+
+				/* new file create */
+
+				$(document).on("click",'#btn-create-file' ,function(){
+					
+						$("#load-file").load("/xmltree/")
+
+				});
+
+				/* end file create */
+
+				/* file link */
+
+				$(document).on('click', '.file-link', function(e){
+					e.preventDefault();
+					$('#load-file').load($(this).attr('data-href'));
+				});
+
+				$(document).on('click', '.file-link-all', function(e){
+					e.preventDefault();
+					$('#load-file').load($(this).attr('data-href'));
+					update_xml_data_file = $(this).attr('data-fileis');
+					
+				});
+
+
+
+				$(document).on('click', '.add-record-link', function(e){
+					e.preventDefault();
+					$('#load-file').attr('data-fileis',$(this).attr('data-fileis'));
+					$('#load-file').load($(this).attr('data-href'));
+				});
+
+				$(document).on("click",".delete-record-link" , function(){
+						var _this_btn = $(this);
+						var _this_dir = $(this).attr('data-fileis');
+						var parent = '';
+						
+						$('#path').find('li').each(function(){
+							if ($(this).find('a').text() == 'root') {
+
+							}else{
+								parent += $(this).find('a').text() + '/';
+							}
+						});
+
+						parent = parent.substring(0, parent.length - 1);
+
+						var fd = new FormData();
+						fd.append('parent' , parent);
+						fd.append('file_is' , $(this).attr('data-fileis'))
+
+						$.ajax({
+
+							url: '/xmltree/delete_xml_file/',
+							type: 'POST',
+							processData: false,
+							contentType: false,
+							csrfmiddlewaretoken: csrf_token,
+							data: fd,
+							success: function(data)
+							{
+								if (data == 'ok') {
+									alert('File successfully deleted');
+									_this_btn.closest('li').remove()	
+								}
+								else{
+									alert('File cannot deleted');
+								}
+								
+							}
+						});
+					});	
+
+				/* delete folder */
+
+				$(document).on("click",".delete-folder-link" , function(){
+						var _this_btn = $(this);
+						var _this_dir = $(this).attr('data-fileis');
+						var parent = '';
+						
+						$('#path').find('li').each(function(){
+							if ($(this).find('a').text() == 'root') {
+
+							}else{
+								parent += $(this).find('a').text() + '/';
+							}
+						});
+						parent = parent.substring(0, parent.length - 1);
+
+						var fd = new FormData();
+						fd.append('parent' , parent);
+						fd.append('file_is' , $(this).attr('data-fileis'))
+
+						$.ajax({
+
+							url: '/xmltree/delete_xml_folder/',
+							type: 'POST',
+							processData: false,
+							contentType: false,
+							csrfmiddlewaretoken: csrf_token,
+							data: fd,
+							success: function(data)
+							{
+								if (data == 'ok') {
+									alert('Directory successfully deleted');
+									_this_btn.closest('li').remove();
+								}
+								else{
+									alert('Directory is not empty');
+								}
+								
+							}
+						});
+
+
+				/* end delete folder */
+						
+
+				});
+				$(document).on("click",".btn-dir" , function(){
+						var _this_dir = $(this).text().replace(' ','');
+						var parent = '';
+						
+						$('#path').find('li').each(function(){
+							if ($(this).find('a').text() == 'root') {
+
+							}else{
+								parent += $(this).find('a').text() + '/';
+							}
+						});
+
+						parent = parent.substring(0, parent.length - 1);
+
+						var fd = new FormData();
+						fd.append('parent', parent);
+						fd.append('current_dir', _this_dir);
+
+						$.ajax({
+
+							url: '/xmltree/getchild/',
+							type: 'POST',
+							processData: false,
+							contentType: false,
+							csrfmiddlewaretoken: csrf_token,
+							data: fd,
+							success: function(data){
+								data = JSON.parse(data);
+								console.log(data);
+								$('#path').append('<li><a href="'+_this_dir+'">'+_this_dir+'</a></li>');
+								$('.files').empty();
+								$('.dirs').empty();
+								if (data.files) {
+									for(i = 0; i<data.files.length;i++){
+										if (parent != "") {
+											$('.files').append('<li>	\
+												<span class="btn file-link-all" data-fileis="'+data.files[i]+'" data-href="/xmltree/showfilehtml/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'" ><i class="fa fa-file"></i> '+data.files[i]+'</span>	\
+												<div class="pull-right">	\
+													<button class="btn btn-success file-link" data-href="/xmltree/showdata/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'"><i class="fa fa-pencil"></i></button>	\
+													<button class="btn btn-info add-record-link" data-fileis="'+parent+'/'+_this_dir+'/'+data.files[i]+'" data-href="/xmltree/Add_Record/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'"><i class="fa fa-plus"></i></button>	\
+													<button class="btn btn-danger delete-record-link" data-fileis="'+data.files[i]+'"><i class="fa fa-trash-o"></i></button>	\
+												</div>	\
+											</li>'); 
+				
+											
+		
+										}else{
+											$('.files').append('<li>	\
+												<span class="btn file-link-all" data-href="/xmltree/showdata/?file_is='+_this_dir+'/'+data.files[i]+'" ><i class="fa fa-file"></i> '+data.files[i]+'</span>	\
+												<div class="pull-right">	\
+													<button class="btn btn-success file-link" data-href="/xmltree/showdata/?file_is='+_this_dir+'/'+data.files[i]+'"><i class="fa fa-pencil"></i></button>	\
+													<button class="btn btn-info add-record-link" data-fileis="'+_this_dir+'/'+data.files[i]+'" data-href="/xmltree/Add_Record/?file_is='+_this_dir+'/'+data.files[i]+'"><i class="fa fa-plus"></i></button>	\
+													<button class="btn btn-danger delete-record-link" data-fileis="'+data.files[i]+'"><i class="fa fa-trash-o"></i></button>	\
+												</div>	\
+											</li>');
+
+											
+
+										}
+										
+									}
+								}
+								if (data.dirs) {
+									for(i = 0; i<data.dirs.length;i++){
+										$('.dirs').append('<li>	\
+											<span class="btn-dir btn text-warning "><i class="fa fa-folder"></i> '+data.dirs[i]+'</span> \
+											<div class="pull-right">	\
+												<button class="btn btn-danger delete-folder-link" data-fileis="'+data.dirs[i]+'"><i class="fa fa-trash-o"></i></button>	\
+											</div>	\
+										</li>');
+									}
+								};
+							}
+						});
+				});
+		});
+</script>
+</body>
+</html>

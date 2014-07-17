@@ -1,0 +1,179 @@
+<html>
+<head>
+	<title>Edit xml file</title>
+	<link rel='stylesheet' href="/static/css/bootstrap.min.css" type='text/css'>
+</head>
+<body style="color:white;">
+<div class="container-fluid">
+<div class="col-sm-12">
+<div class="base-info" >
+<h4>Poster</h4>
+<p class="poster">{{ base_info.poster }}</p>
+<h4>Fanart</h4>
+<p class="fanart">{{ base_info.fanart }}</p>
+<h4>Message</h4>
+<p class="message">{{ base_info.message }}</p>
+<h4>Thumbnail</h4>
+<p class="info-thumbnail">{{ base_info.thumbnail }}</p>
+<br>
+<button type="button" class="edit-base-info btn btn-success">Edit</button>
+</div>
+<hr>
+{% for item in items %}
+	<h2 class="item-number">Items - {{ forloop.counter }}</h2>
+	<div class="item" item-id="{{ forloop.counter }}">
+		<h4>Title</h4>
+		<div><p class="title">{{ item.title }}</p></div>
+		<h4>Thumbnail</h4>
+		<div><p class="item-thumbnail">{{ item.thumbnail }}</p></div>
+		<h4>Sublinks</h4>
+		<div class="links">
+		{% for sublink in item.link %}
+			<p><div class="sublink" sublink-id="{{ forloop.counter }}">{{ sublink }}</div></p>
+		{% endfor %}
+		</div>
+		<br>
+		<button type="button" class="edit-item btn btn-success">Edit</button>
+		<button type="button" class="delete-item btn btn-danger">Delete</button>
+	</div>	
+	<hr>
+{% endfor %}
+</div>
+</div>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script>
+	$(document).on('click', '.edit-item', function(){
+		var _this_item = $(this);
+		var item_title = _this_item.closest('.item').find('.title').text();
+		var item_thumb  = _this_item.closest('.item').find('.item-thumbnail').text();
+		
+		_this_item.closest('.item').find('.title').replaceWith('<input style="width: 100%;" type="text" class="form-control title" value="'+item_title+'">');
+		_this_item.closest('.item').find('.item-thumbnail').replaceWith('<textarea style="width: 100%;" type="" class="item-thumbnail form-control">'+item_thumb+'</textarea>');
+
+		_this_item.closest('.item').find('.sublink').each(function(){
+			this_sublink = $(this).text();	
+			this_sublink_id = $(this).attr('sublink-id');
+			$(this).replaceWith('<input style="width: 100%;" type="text" class="form-control sublink" value="'+this_sublink+'" sublink-id="'+this_sublink_id+'">');
+		});
+
+		$(this).removeClass('edit-item').addClass('update-item');
+		$(this).text('Update');
+	});
+
+	$(document).on('click', '.update-item', function(){
+		var _this_button = $(this);
+		var this_item = $(this).closest('.item');
+		var item_index = this_item.attr('item-id');
+		var item_data = {};
+		item_data['title'] = this_item.find('.title').val();
+		item_data['thumbnail'] = this_item.find('.item-thumbnail').val();
+		var sublink_list = [];
+		this_item.find('.sublink').each(function(){
+			sublink_list.push($(this).val());
+		});
+		item_data['sublink'] = sublink_list;
+		item_data['index'] = item_index;
+		$.ajax({
+			url: '/xmltree/updatexml/',
+			contentType: 'application/json',
+			type: 'POST',
+			data: JSON.stringify({
+				'xml_file': 'test.xml',				
+				'item_data': item_data,
+				'type': 'item'
+			}),
+			success: function(data){
+				alert(data);
+				this_item.closest('.item').find('.title').replaceWith('<p class="title">'+item_data['title']+'</p>');
+				this_item.closest('.item').find('.item-thumbnail').replaceWith('<p class="item-thumbnail">'+item_data['thumbnail']+'</p>');
+
+				this_item.closest('.item').find('.sublink').each(function(){
+					this_sublink = $(this).val();	
+					this_sublink_id = $(this).attr('sublink-id');
+					$(this).replaceWith('<div class="sublink" sublink-id="'+this_sublink_id+'">'+$(this).val()+'</div>');
+				});
+
+				_this_button.removeClass('update-item').addClass('edit-item');
+				_this_button.text('Edit');
+			}
+		});
+	});
+	/****************************************************
+	*********************/
+
+	$(document).on('click', '.delete-item', function(){
+		var _this_button = $(this);
+		var this_item = $(this).closest('.item');
+		var item_index = this_item.attr('item-id');
+		var item_data = {};
+		
+		item_data['index'] = item_index;
+		$.ajax({
+			url: '/xmltree/delete_xml/',
+			contentType: 'application/json',
+			type: 'POST',
+			data: JSON.stringify({
+				'xml_file': 'test.xml',				
+				'item_data': item_data,
+				'type': 'item'
+			}),
+			success: function(data){
+				this_item.prev('.item-number').remove();
+				this_item.next('hr').remove();
+				this_item.remove();				
+			}
+		});
+	});
+
+
+	/*************************************************************************************************************************/
+	$(document).on('click', '.edit-base-info', function(){
+		var _this_item = $(this);
+		var poster = _this_item.closest('.base-info').find('.poster').text();
+		var fanart  = _this_item.closest('.base-info').find('.fanart').text();
+		var message  = _this_item.closest('.base-info').find('.message').text();
+		var thumbnail  = _this_item.closest('.base-info').find('.info-thumbnail').text();
+		
+		_this_item.closest('.base-info').find('.poster').replaceWith('<input style="width: 100%;" type="text" class="form-control poster" value="'+poster+'">');
+		_this_item.closest('.base-info').find('.fanart').replaceWith('<input style="width: 100%;" type="text" class="form-control fanart" value="'+fanart+'">');
+		_this_item.closest('.base-info').find('.message').replaceWith('<input style="width: 100%;" type="text" class="form-control message" value="'+message+'">');
+		_this_item.closest('.base-info').find('.info-thumbnail').replaceWith('<input style="width: 100%;" type="text" class="form-control info-thumbnail" value="'+thumbnail+'">');
+
+		_this_item.removeClass('edit-base-info').addClass('update-base-info');
+		_this_item.text('Update');
+	});
+
+	$(document).on('click', '.update-base-info', function(){
+		var _this_button = $(this);
+		var base_info_data = {};
+		base_info_data['poster'] = _this_button.closest('.base-info').find('.poster').val();
+		base_info_data['fanart'] = _this_button.closest('.base-info').find('.fanart').val();
+		base_info_data['message'] = _this_button.closest('.base-info').find('.message').val();
+		base_info_data['thumbnail'] = _this_button.closest('.base-info').find('.info-thumbnail').val();
+
+		$.ajax({
+			url: '/xmltree/updatexml/',
+			contentType: 'application/json',
+			type: 'POST',
+			data: JSON.stringify({
+				'xml_file': 'test.xml',				
+				'base_info_data': base_info_data,
+				'type': 'base'
+			}),
+			success: function(data){
+				alert(data);
+				_this_button.closest('.base-info').find('.poster').replaceWith('<p class="poster">'+base_info_data['poster']+'</p>');
+				_this_button.closest('.base-info').find('.fanart').replaceWith('<p class="fanart">'+base_info_data['fanart']+'</p>');
+				_this_button.closest('.base-info').find('.message').replaceWith('<p class="message">'+base_info_data['message']+'</p>');
+				_this_button.closest('.base-info').find('.info-thumbnail').replaceWith('<p class="info-thumbnail">'+base_info_data['thumbnail']+'</p>');
+
+				_this_button.removeClass('update-base-info').addClass('edit-base-info');
+				_this_button.text('Edit');
+			}
+		});
+	});
+
+</script>
+</body>
+</html>

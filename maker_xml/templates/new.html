@@ -1,0 +1,158 @@
+<html>
+<head>
+{% load staticfiles %}
+<link rel='stylesheet' href="/static/css/style.css" type='text/css'>
+</head>
+<body>
+<center>
+	<div class='main'>
+	<div class='dv1'>
+		<table class='tbmain'>
+		<tr>
+		<td  class='info' colspan='2'>
+		POSTER DATA
+		</td>
+		</tr>
+		<tr>
+			<td><label>Poster name </label></td>
+			<td><input type="text" id="poster-name"></td>
+		</tr>
+		<tr>
+			<td><label>Poster file </label></td>
+			<td><input type="file" id="poster-file"></td>
+		</tr>
+		</table>
+		
+		</div>
+	
+	<div class='dv2'>
+	<table class='tbmain'>
+		<tr>
+		<td  class='info' colspan='2'>
+		INFORMATION
+		</td>
+		</tr>
+		<tr>
+			<td><label>Message </label></td>
+			<td><input type="text" id="poster-name"></td>
+		</tr>
+		<tr>
+			<td><label>Thumb file </label></td>
+			<td><input type="file" id="poster-file"></td>
+		</tr>
+		</table>
+	
+	</div>
+	<div id="newItems" style='border-top:2px solid blue;'>
+		
+		
+		
+	</div>
+	<div class='dv3'>
+	<table class='tbmain'>
+		<tr>
+		<td  class='info' colspan='2'>
+		Add Items
+		<input type='text' id='txtadd' name='txtadd' />
+		<input type='button' id='btnadd' value='+' />
+	</td>
+	</tr>
+	</table>
+	</div>
+	
+	
+	
+	<input type="button" value="create" id="create-xml-btn">
+	</div>
+	
+	
+	<form class="FormToAdd hide" id="Form">
+		
+		<div class='appendintoformtitle'>
+		
+			Title: <input type='text'>
+		
+		</div> 
+		
+		<div class='appendintoformthumb'  style='border-bottom:2px solid blue;'>
+			Thumb: <input type='file' >
+		</div>
+	</form>
+	
+	<div class="hide" id="appendintoformsublink">
+	 Sub Link:<input type="text" >
+	</div>
+	
+	
+	<input type='submit'>
+	
+	<script src="/static/js/jquery.js"></script>
+	<script>
+	
+	$(document).ready(function(){
+	var id = 0
+	$('#btnadd').click(function(){
+			var val_of_sublink = $('#txtadd').val()
+			if(val_of_sublink != "" && val_of_sublink > 0)
+			{
+				form = $('.FormToAdd').clone();
+				form.attr('id', 'form' + id);
+				form.removeClass('hide');
+			
+				console.log(form);
+			
+				$('#newItems').append(form);
+			
+			
+			//input_title = $('#appendintoformtitle').clone().attr('id','');
+			//input_title.removeClass('hide');
+			//form.append(input_title);
+			
+				var loop_count = 0;
+				loop_count = val_of_sublink;
+			
+				for(i=0; i<loop_count;i++)
+				{
+				
+					input_box = $('#appendintoformsublink').clone().attr('id', '');
+					input_box.removeClass('hide');
+					form.find('.appendintoformtitle').after(input_box)
+				
+				}
+				id = id + 1
+				
+			
+			}
+			else
+			{
+				alert('Enter The Sub Link...')
+				$('#txtadd').focus()
+			}
+			
+		});
+	});
+	</script>
+	<script>
+		var csrf_token = '{{ csrf_token }}';
+		$(document).on('click', '#create-xml-btn', function(){
+			var poster_name = $('#poster-name').val();
+			//var poster_file = $('#poster-file').files[0];
+			var poster_file = '';
+			var create_xml_data = {};
+			create_xml_data['poster_name'] = poster_name;
+			create_xml_data['poster_file'] = poster_file;
+			$.ajax({
+				url: '/create/',
+				type: 'POST',
+				csrfmiddlewaretoken: csrf_token,
+				data: create_xml_data,
+				contentType: 'application/json',
+				success: function(data){
+					alert(data);
+				}
+			});
+		});
+		
+	</script>
+</body>
+</html>

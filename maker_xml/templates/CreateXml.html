@@ -1,0 +1,164 @@
+<html>
+<head>
+{% load staticfiles %}
+<link rel='stylesheet' href="/static/css/bootstrap.min.css" type='text/css'>
+<link rel='stylesheet' href="/static/css/style.css" type='text/css'>
+<style type="text/css">
+	.info{
+		background-color: #333 !important;
+		padding: 10px;
+	}
+	.tbmain tr{
+		padding: 15px !important;
+	}
+</style>
+</head>
+<body>
+<center>
+	<div class='main' style="background-color:#666; color:white;">
+	<div class='dv1'>
+		<table class='tbmain'>
+		
+		<tr>
+		<td  class='info' colspan='2'>
+		FILE DATA
+		</td>
+		</tr>
+			<tr >
+			<td style="color:white;">
+				File Name
+			</td>
+			<td>
+				<input type='text' class="form-control" id='xml-file-name' >
+			</td>
+		</tr>
+		
+		<tr>
+		<td  class='info' colspan='2'>
+		POSTER DATA
+		</td>
+		</tr>
+		
+		<tr>
+			<td style="color:white;">Poster name </td>
+			<td><input type="text" id="poster-name" class="form-control"></td>
+		</tr>
+		
+		<tr>
+			<td style="color:white;">Poster file </td>
+			<td><input type="text" id="poster-file" class="form-control"></td>
+		</tr>
+		</table>
+		
+		</div>
+	
+	<div class='dv2'>
+	<table class='tbmain'>
+		<tr>
+		<td  class='info' colspan='2'>
+		INFORMATION
+		</td>
+		</tr>
+		<tr>
+			<td style="color:white;">Message</td>
+			<td><input type="text" id="info-message" class="form-control"></td>
+		</tr>
+		<tr>
+			<td style="color:white;">Thumb file</td>
+			<td><input type="text" id="info-thumb" class="form-control"></td>
+		</tr>
+		</table>
+	
+	</div>
+	
+	<div style='padding-bottom:10px;'>
+		<input type='Button' value='Create Xml' id='create-xml-btn' class="btn btn-success"/>
+		
+	</div>
+	</div>
+	
+	<!-- script code -->
+	
+	<script src="/static/js/jquery.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+		var csrf_token = '{{ csrf_token }}';
+		var fd = new FormData();
+		$(document).on('click', '#create-xml-btn', function(){
+
+			var parent = '';
+					var fd = new FormData();	
+					$('#path').find('li').each(function(){
+						if ($(this).find('a').text() == 'root') {
+
+						}else{
+							parent = $(this).find('a').text() + '/';
+						}
+					});
+
+					parent = parent.substring(0, parent.length - 1);
+
+			_this = $(this);
+			var poster_name = $('#poster-name').val();
+			var poster_file = $('#poster-file').val();
+			var info_message = $('#info-message').val();
+			var info_thumb  = $('#info-thumb').val();
+			var xml_file_name = $('#xml-file-name').val();
+			fd.append("poster_name", poster_name);
+			fd.append("poster_file", poster_file);
+			fd.append("info_message", info_message);
+			fd.append("info_thumb", info_thumb);
+			fd.append("xml_file_name" , xml_file_name);
+			fd.append("parent",parent);
+			if (xml_file_name != "")
+			{		
+				$.ajax({
+					url: '/xmltree/create/',
+					type: 'POST',
+					processData: false,
+					contentType: false,
+					csrfmiddlewaretoken: csrf_token,
+					data: fd,
+					success: function(data){
+						
+						if (data == "file already exist")
+						{
+							alert(data);
+						}
+						else
+						{
+							alert(data);
+							if (parent != "") {
+								$('.files').append('<li>	\
+									<span class="btn file-link" data-href="/xmltree/showdata/?file_is='+parent+'/'+xml_file_name+'" ><i class="fa fa-file"></i> '+xml_file_name+'</span>	\
+									<div class="pull-right">	\
+										<button class="btn btn-success file-link" data-href="/xmltree/showdata/?file_is='+parent+'/'+xml_file_name+'"><i class="fa fa-pencil"></i></button>	\
+										<button class="btn btn-info add-record-link" data-fileis="'+parent+'/'+xml_file_name+'" data-href="/xmltree/Add_Record/?file_is='+parent+'/'+xml_file_name+'"><i class="fa fa-plus"></i></button>	\
+										<button class="btn btn-danger delete-record-link" data-fileis="'+xml_file_name+'"><i class="fa fa-trash-o"></i></button>	\
+									</div>	\
+								</li>'); 
+							}
+							else{
+								$('.files').append('<li>	\
+									<span class="btn file-link" data-href="/xmltree/showdata/?file_is='+xml_file_name+'" ><i class="fa fa-file"></i> '+xml_file_name+'</span>	\
+									<div class="pull-right">	\
+										<button class="btn btn-success file-link" data-href="/xmltree/showdata/?file_is='+xml_file_name+'"><i class="fa fa-pencil"></i></button>	\
+										<button class="btn btn-info add-record-link" data-fileis="'+xml_file_name+'" data-href="/xmltree/Add_Record/?file_is='+xml_file_name+'"><i class="fa fa-plus"></i></button>	\
+										<button class="btn btn-danger delete-record-link" data-fileis="'+xml_file_name+'"><i class="fa fa-trash-o"></i></button>	\
+									</div>	\
+								</li>'); 	
+							}
+						}
+					}
+				});
+			}
+			else
+			{
+				alert('Enter The File Name..')
+			}
+		});
+		
+	</script>
+	
+	
+	

@@ -1,0 +1,114 @@
+<head>
+{% load staticfiles %}
+<link rel='stylesheet' href="{{ STATIC_URL }}style.css" type='text/css'>
+
+
+<SCRIPT language="javascript">
+function add() {
+ 
+    //Create an input type dynamically.
+	var dvleft = document.createElement('div');
+	var dvright = document.createElement('div');
+	
+    var title = document.createElement("input");
+	var sublink = document.createElement("input");
+	var thumb = document.createElement('input');
+	var tlabel = document.createElement('label')
+	var slabel = document.createElement('label')
+	var thumblabel = document.createElement('label')
+    //Assign different attributes to the element.
+	
+	tlabel.innerHTML = "Title: "
+	slabel.innerHTML = "Sub Link: "
+	thumblabel.innerHTML = 'Thumb: '
+	
+    title.setAttribute("type", 'text');
+    title.setAttribute("name", 'txttitle');
+	
+	sublink.setAttribute("type", 'text');
+    sublink.setAttribute("name", 'txtsublink');
+	
+	thumb.setAttribute("type", 'file');
+    thumb.setAttribute("name", 'flthumb');
+	
+ 
+    var foo = document.getElementById("fooBar");
+ 
+    //Append the element in page (in span).
+	foo.appendChild(dv);
+	foo.appendChild(tlabel);
+    foo.appendChild(title);
+	
+	foo.appendChild(dv);
+	foo.appendChild(slabel);
+	foo.appendChild(sublink);
+	
+	foo.appendChild(dv);
+	foo.appendChild(thumblabel);
+	foo.appendChild(thumb);
+ 
+}
+</SCRIPT>
+</head>
+
+<form name='frmxml'>
+<body>
+{% csrf_token %}
+<center>
+<Div class='dvheaderposter'>
+Movies Data
+</div>
+{% for i in pos%}
+<div class='dvmain'>
+<div class='dvleftposter'>
+{{i.label_tag}}
+</div>
+<div class='dvrightposter'>
+{{i}}
+</div>
+</div>
+{% endfor%}
+
+
+<!-- infirmation -->
+
+<Div class='dvheaderposter'>
+Information
+</div>
+{% for i in info%}
+<div class='dvmain'>
+<div class='dvleftposter'>
+{{i.label_tag}}
+</div>
+<div class='dvrightposter'>
+{{i}}
+</div>
+</div>
+{% endfor%}
+
+
+<!-- Item -->
+
+<span id="fooBar">&nbsp;</span>
+
+
+
+<Div class='dvheaderposter'>
+Add Movies 
+
+<span>
+
+<INPUT type="button" class='btnadd' value="+" onclick="add()"/>
+ 
+</span>
+<span>  
+ <input type='text' name='txtaddsublink' width='10' class='txtaddsublink'> 
+</span>
+
+</div>
+
+
+
+<div>
+<input type='submit' name='btnsubmit'>
+</div>
