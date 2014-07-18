@@ -1,13 +1,24 @@
+from django import forms
+from django.utils.translation import ugettext, ugettext_lazy as _
 from django.shortcuts import render
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from registration.forms import RegistrationForm, RegistrationFormUniqueEmail
+from registration.backends.default.views import RegistrationView
+from django.contrib.auth.models import User
 from lxml import etree
 import os
+from django.contrib.auth.decorators import login_required
 
 MEDIA_DIR = settings.MEDIA_DIR
 XML_DIR = settings.XML_DIR
 
+#@login_required
+def account_profile(request):
+	return HttpResponseRedirect('/xmltree/listout/')
+
+#@login_required
 @csrf_exempt
 def delete_xml_file(request):
 	parent = request.POST.get('parent')
@@ -22,7 +33,7 @@ def delete_xml_file(request):
 	except Exception, e:
 		return HttpResponse("fail")
 	
-
+#@login_required
 @csrf_exempt
 def delete_xml_folder(request):
 	parent = request.POST.get('parent')
@@ -37,7 +48,7 @@ def delete_xml_folder(request):
 		return HttpResponse("ok")
 	except Exception, e:
 		return HttpResponse("fail")
-
+#@login_required
 @csrf_exempt
 def create_folder(request):
 	if request.method == "POST":
@@ -52,17 +63,21 @@ def create_folder(request):
 			os.makedirs(folder_path)
 			return HttpResponse('ok')
 
+#@login_required
 def tree_view(request):
 	for path , dir ,files in os.walk(XML_DIR):
 		
 		return render(request,'tree.html',{'Path':path,'file':files})
-
+#@login_required
 def XmlViewer(request):
     return render(request,'CreateXml.html')
     #return render(request,'index.html', {'pos':pos,'info':info,})
 
-def add_record(request):
-	return render(request,'Add_Item.html')
+#@login_required
+#def add_record(request):
+#	file_name_listout = request.POST.get('file_is')
+#	return render(request,'Add_Item.html',{'file_name':file_name_listout,})
+
 
 def handle_uploaded_file(f):    
 	with open( os.path.join(MEDIA_DIR, f.name), 'wb+') as destination:
@@ -70,6 +85,7 @@ def handle_uploaded_file(f):
 			destination.write(chunk)
 	return os.path.join(MEDIA_DIR, f.name)
 
+#@login_required
 @csrf_exempt
 def add_record(request):
 	xml_root = os.listdir(XML_DIR)
@@ -116,11 +132,38 @@ def add_record(request):
 		
 	return render(request,'Add_Item.html', {'xml_root': xml_root})
 
+@csrf_exempt
+def add_record_dir(request):
+	xml_root = os.listdir(XML_DIR)
+	if request.POST:
+		file_xml = request.POST.get('file_is')
+		xml_file = os.path.join(XML_DIR, file_xml)
+		item_title = request.POST.get('item_title')
+		item_thumb = request.POST.get('item_thumbnail')
+		link = (request.POST.get('link')) 
+			
+		tree = etree.parse(xml_file)
+		root = tree.getroot()
+		
+		item = etree.SubElement(root, 'dir')
+		etree.SubElement(item, 'title').text = item_title
+		etree.SubElement(item,'link').text = link
+		etree.SubElement(item, 'thumbnail').text = item_thumb
+		
+		etree.ElementTree(root).write( xml_file, pretty_print=True)
+	
+		
+	return render(request,'add_dir_item.html', {'xml_root': xml_root})
+
+
+#@login_required
 @csrf_exempt		
 def create_xml(request):
 	xml_file_name = request.POST.get('xml_file_name')
-	
-	file_name = os.path.join(XML_DIR , os.path.join(request.POST.get('parent') , xml_file_name + '.xml'))
+	if xml_file_name.endswith('.xml'):
+		file_name = os.path.join(XML_DIR , os.path.join(request.POST.get('parent') , xml_file_name))
+	else:
+		file_name = os.path.join(XML_DIR , os.path.join(request.POST.get('parent') , xml_file_name + '.xml'))
 	flag1 = os.path.isfile(file_name)
 	
 	if flag1 == False:
@@ -143,6 +186,7 @@ def create_xml(request):
 	else:
 		return HttpResponse("file already exist")
 
+#@login_required
 def show_data(request):
 	if request.method == 'GET':
 		file_xml = request.GET.get('file_is')
@@ -171,6 +215,7 @@ def show_data(request):
 
 		return render(request, 'show_data.html', {'items': items, 'base_info': base_info})
 
+#@login_required
 @csrf_exempt
 def get_child_tree(request):
 	if request.POST:
@@ -183,11 +228,13 @@ def get_child_tree(request):
 		import json
 		return HttpResponse(json.dumps(directory))
 
+@login_required
 @csrf_exempt		
 def list_out(request):
-	directory = build(XML_DIR)
+	directory = build(os.path.join(XML_DIR, request.user.username ))
 	return render(request, 'listout.html', {'tree': directory})
 
+#@login_required
 def build(root_path):
 	directory = {}
 	elem_list = os.listdir(root_path)
@@ -204,6 +251,7 @@ def build(root_path):
 
 	return directory
 
+#@login_required
 def list_files(startpath):
 	root = []
 	dirs_arr = []
@@ -236,6 +284,7 @@ def list_files(startpath):
 	print directory
 	return directory
 
+#@login_required
 @csrf_exempt
 def delete_xml(request):
 	if request.method == 'GET':
@@ -262,7 +311,7 @@ def delete_xml(request):
 
 		return HttpResponse('item successfully Delete')
 
-
+#@login_required
 @csrf_exempt
 def update_xml(request):
 	if request.method == 'GET':
@@ -304,6 +353,7 @@ def update_xml(request):
 
 		return HttpResponse('item successfully updated')
 
+#@login_required
 def showfilehtml(request):
 	file_xml = request.GET.get('file_is')
 	print "xml file" , file_xml
@@ -314,6 +364,7 @@ def showfilehtml(request):
 	print data
 	return render(request, 'showfile.html', {'data': data})
 
+#@login_required
 @csrf_exempt
 def pass_data(request):
 	file_xml = request.POST.get('file_is')
@@ -324,3 +375,44 @@ def pass_data(request):
 	with open(xml_file, 'w') as f:
 		f.write(data)
 	return HttpResponse('ok')
+
+
+class MyCustomRegistrationForm(RegistrationFormUniqueEmail):
+
+    def clean_username(self):
+        # Since User.username is unique, this check is redundant,
+        # but it sets a nicer error message than the ORM. See #13147.
+        
+        existing = User.objects.filter(username__iexact=self.cleaned_data['username'])
+        if existing.exists():
+            raise forms.ValidationError(_("A user with that username already exists."))
+        else:
+            return self.cleaned_data['username']
+
+
+
+class MyRegistrationView(RegistrationView):
+
+    form_class= MyCustomRegistrationForm
+    
+    def register(self, request, **cleaned_data):
+        
+        new_user= super(MyRegistrationView, self).register(request, **cleaned_data)
+        # here create your new UserProfile object
+        return new_user
+
+
+from registration.signals import user_activated
+from django.dispatch import receiver
+
+
+@receiver(user_activated)
+def my_callback(sender, user, request, **kwargs):
+	try:
+		user_dir = os.path.join(XML_DIR, user.username)
+		print user_dir
+		os.makedirs(user_dir)	
+	except Exception, e:
+		print e
+		pass
+	

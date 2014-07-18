@@ -1,0 +1,58 @@
+{% extends "base_registration.html" %}
+{% block title %}Registration{% endblock %}
+        
+{% block body %}
+<center id="registration-box-wrapper">
+        <div class="rbox-horz lbox-horz"></div>
+        <div class="lbox-vert"></div>
+        <div class="login-box side-form">
+            <h3 class="text-center">REGISTRATION</h3>
+            <form class="form-validation" method="post" action="">
+            {% if form.non_field_errors %}
+                <p class="has-error text-danger">{{ form.non_field_errors.as_text  }}</p>
+            {% endif %}
+            {% csrf_token %}
+                <div class="form-group {% if form.username.errors %} has-error {% endif %}">
+                 <div class="input-cn">
+                    <input type="text" class="input-sm validate[required] form-control" name="username" placeholder="Username">
+                </div>
+                <div class="icon">
+                    <span class="right-icon"><i class="fa fa-user fa-lg"></i></span>
+                </div>
+	   </div>
+                <p class="text-danger">{{ form.username.errors.as_text }}</p>
+                <div class="form-group">
+                 <div class="input-cn">
+                    <input type="text" class="input-sm validate[required,custom[email]] form-control" name="email" placeholder="Email Address">
+                </div>
+                 <div class="icon">
+                    <span class="right-icon"><i class="fa fa-envelope fa-lg"></i></span>
+                </div>
+                </div>
+                <p class="text-danger">{{ form.email.errors.as_text }}</p>
+                <div class="form-group">
+                 <div class="input-cn">
+                    <input type="password" class="input-sm validate[required] form-control" name="password1" placeholder="Password">
+                </div>
+                 <div class="icon">
+                    <span class="right-icon"><i class="fa fa-key fa-lg"></i></span>
+                </div>
+                </div>
+                <p class="text-danger">{{ form.password1.errors.as_text }}</p>
+                <div class="form-group">
+                 <div class="input-cn">
+                    <input type="password" class="input-sm validate[required] form-control" name="password2" placeholder="Confirm Password">
+                </div>
+                 <div class="icon">
+                    <span class="right-icon"><i class="fa fa-key fa-lg"></i></span>
+                </div>
+                </div>
+                <p class="text-danger">{{ form.password2.errors.as_text }}</p>
+                <input type="submit" class="btn btn-gr-gray btn-block btn-info btn" value="REGISTER">
+            </form>
+            <br>
+            <p><a href="/accounts/login/">Go to home</a></p>
+        </div>
+        {% endblock %}
+        
+        

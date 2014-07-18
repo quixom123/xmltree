@@ -1,0 +1,16 @@
+{% extends "base_registration.html" %}
+{% block title %}Logout{% endblock %}
+{% block body %}
+        <div class="lbox-horz"></div>
+        <div class="lbox-vert">
+            
+        </div>
+        <div class="text-center">
+	        <div class="">
+	        		<br/><br/>
+		    <h4> Successfully logged out! </h4>
+			<br/><br/>
+			<h5>To login again, click <a href={% url 'auth_login' %}> here </a>.</h5>
+		</div>
+	</div>
+{% endblock %}

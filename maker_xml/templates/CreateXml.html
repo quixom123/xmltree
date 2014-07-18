@@ -119,6 +119,7 @@
 					contentType: false,
 					csrfmiddlewaretoken: csrf_token,
 					data: fd,
+					async: false,
 					success: function(data){
 						
 						if (data == "file already exist")
@@ -128,6 +129,9 @@
 						else
 						{
 							alert(data);
+							if (xml_file_name.toLowerCase().indexOf('.xml') < 0){
+								xml_file_name += '.xml';
+							}
 							if (parent != "") {
 								$('.files').append('<li>	\
 									<span class="btn file-link" data-href="/xmltree/showdata/?file_is='+parent+'/'+xml_file_name+'" ><i class="fa fa-file"></i> '+xml_file_name+'</span>	\

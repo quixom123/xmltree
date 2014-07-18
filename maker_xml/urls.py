@@ -1,5 +1,5 @@
 from django.conf.urls import patterns , url
-from maker_xml.views import XmlViewer, create_folder , delete_xml_file , showfilehtml, pass_data , delete_xml_folder ,create_xml , add_record, tree_view , show_data, update_xml, list_out, get_child_tree , delete_xml
+from maker_xml.views import XmlViewer, create_folder , add_record_dir , delete_xml_file , showfilehtml, pass_data , delete_xml_folder ,create_xml , add_record, tree_view , show_data, update_xml, list_out, get_child_tree , delete_xml
 urlpatterns = patterns('',
 	url(r'^create/$' , create_xml , name='create'),
 	url (r'^$', XmlViewer , name='XmlViewer'),
@@ -15,4 +15,5 @@ urlpatterns = patterns('',
         	url(r'^delete_xml_folder/$' , delete_xml_folder , name='delete_xml_folder'),
         	url(r'^showfilehtml/$' , showfilehtml , name='showfilehtml'),
         	url(r'^passdata/$' , pass_data , name='pass_data'),
+                        url(r'^Add_Record_Dir/$' ,  add_record_dir , name='Add_Record_Dir'),
 	)

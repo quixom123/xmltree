@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for xmltree project.
 
@@ -26,7 +27,8 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+SITE_ID = 1
+SITE_URL = 'http://127.0.0.1:8000'
 # Application definition
 
 INSTALLED_APPS = (
@@ -37,7 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'maker_xml',
+    'registration',
 )
+
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -79,6 +84,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
+ACCOUNT_ACTIVATION_DAYS = 7
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'test.qt2014@gmail.com'
+EMAIL_HOST_PASSWORD = 'testqt2014'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
 STATIC_URL = '/static/'
 MEDIA_DIR = os.path.join(BASE_DIR, "media")

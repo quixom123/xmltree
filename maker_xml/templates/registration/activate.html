@@ -1,0 +1,23 @@
+{% extends "base_registration.html" %}
+{% block title %}Activate{% endblock %}
+{% block body %}
+        
+        <div class="lbox-horz"></div>
+        <div class="lbox-vert">
+            
+        </div>
+        <div class="login-box side-form">
+		       {% if account %}
+				<p class="login_activate">Thanks {{ account }}, activation complete!  You may now <a href='{% url auth_login %}'>login</a> using the username and password you set at registration.</p>
+				{% else %}
+				<p class="login_activate">Oops &ndash; it seems that your activation key is invalid.  Please check the url again.
+				{% endif %}
+
+		</div>
+
+{% endblock %}        
+        
+
+
+
+

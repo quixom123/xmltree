@@ -49,7 +49,7 @@
 <body style="background-color:white;">
 <div class="col-sm-12">
 <div class="col-sm-3">
-<ul id="path" class="breadcrumb"><li><a href="/xmltree/listout/">root</a></li></ul>
+<ul id="path" class="breadcrumb"><li><a href="/xmltree/listout/">{{ user.username }}</a></li></ul>
 
 
 <div class="modal fade" id="create-folder-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -81,10 +81,15 @@
 		<ul class="table files">
 		{% for file_elem in tree.files %}
 			<li>
-				<span class="btn file-link-all" data-fileis="{{ file_elem }}" data-href="/xmltree/showfilehtml/?file_is={{ file_elem }}" ><i class="fa fa-file"></i> {{file_elem}} </span>
+				<span class="btn file-link-all" data-fileis="{{ file_elem }}" data-href="/xmltree/showfilehtml/?file_is={{ user.username }}/{{ file_elem }}" ><i class="fa fa-file"></i> {{file_elem}} </span>
 				<div class="pull-right">
-					<button class="btn btn-success file-link"  data-href="/xmltree/showdata/?file_is={{ file_elem }}"><i class="fa fa-pencil"></i></button>
-					<button class="btn btn-info add-record-link" data-fileis="{{ file_elem }}" data-href="/xmltree/Add_Record/?file_is={{ file_elem }}"><i class="fa fa-plus"></i></button>
+					
+
+
+					<button class="btn btn-success file-link" data-fileis="{{ file_elem }}"  data-href="/xmltree/showdata/?file_is={{ user.username }}/{{ file_elem }}"><i class="fa fa-pencil"></i></button>
+
+					<button class="btn btn-info add-record-link" data-fileis="{{ file_elem }}" data-href="/xmltree/Add_Record/?file_is={{ user.username }}/{{ file_elem }}"><i class="fa fa-plus"></i></button>
+
 					<button class="btn btn-danger delete-record-link" data-fileis="{{ file_elem }}"><i class="fa fa-trash-o"></i></button>
 				</div>
 			</li>
@@ -110,9 +115,18 @@
 <div class="col-sm-9" style="border-left: 1px #999 solid;height: 100%; background-color:white;">
 	<div id="header">
 		<div class="col-sm-12">
-			<input type="button" id='btn-create-folder'  value="Create New Folder" class="btn btn-info" data-toggle="modal" data-target="#create-folder-modal"/>
-			<input type="button" id='btn-create-file'  value="Create New File" class="btn btn-info" />
+			<a id='btn-create-folder' class="btn btn-info" data-toggle="modal" data-target="#create-folder-modal">
+			<i class="fa fa-folder-o"></i>
+			Create New Folder </a>
+			<a id='btn-create-file'  class="btn btn-info" ><i class="fa fa-file-code-o"></i> Create New File</a>
+			<div class="pull-right">
+				<a href="/accounts/logout/" class="btn btn-danger"><i class="fa fa-power-off"></i> Logout</a>
+			</div>
 		</div>
+	</div>
+	<br>
+	<div class=" col-sm-12 btn">
+		<div class="file-name"></div>
 	</div>
 	<div id="load-file"></div>
 </div>
@@ -188,12 +202,17 @@
 				$(document).on('click', '.file-link', function(e){
 					e.preventDefault();
 					$('#load-file').load($(this).attr('data-href'));
+
+					$('.file-name').empty();
+					$('.file-name').append($(this).attr('data-fileis'));
 				});
 
 				$(document).on('click', '.file-link-all', function(e){
 					e.preventDefault();
 					$('#load-file').load($(this).attr('data-href'));
 					update_xml_data_file = $(this).attr('data-fileis');
+					$('.file-name').empty();
+					$('.file-name').append($(this).attr('data-fileis'));
 					
 				});
 
@@ -203,6 +222,8 @@
 					e.preventDefault();
 					$('#load-file').attr('data-fileis',$(this).attr('data-fileis'));
 					$('#load-file').load($(this).attr('data-href'));
+					$('.file-name').empty();
+					$('.file-name').append($(this).attr('data-fileis'));
 				});
 
 				$(document).on("click",".delete-record-link" , function(){
@@ -321,7 +342,7 @@
 							success: function(data){
 								data = JSON.parse(data);
 								console.log(data);
-								$('#path').append('<li><a href="'+_this_dir+'">'+_this_dir+'</a></li>');
+								$('#path').append('<li><a class="breadcrumb-elem" href="javascript:void(0);" data-href="'+_this_dir+'">'+_this_dir+'</a></li>');
 								$('.files').empty();
 								$('.dirs').empty();
 								if (data.files) {
@@ -330,12 +351,11 @@
 											$('.files').append('<li>	\
 												<span class="btn file-link-all" data-fileis="'+data.files[i]+'" data-href="/xmltree/showfilehtml/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'" ><i class="fa fa-file"></i> '+data.files[i]+'</span>	\
 												<div class="pull-right">	\
-													<button class="btn btn-success file-link" data-href="/xmltree/showdata/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'"><i class="fa fa-pencil"></i></button>	\
+													<button class="btn btn-success file-link" data-fileis="'+data.files[i]+'" data-href="/xmltree/showdata/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'"><i class="fa fa-pencil"></i></button>	\
 													<button class="btn btn-info add-record-link" data-fileis="'+parent+'/'+_this_dir+'/'+data.files[i]+'" data-href="/xmltree/Add_Record/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'"><i class="fa fa-plus"></i></button>	\
 													<button class="btn btn-danger delete-record-link" data-fileis="'+data.files[i]+'"><i class="fa fa-trash-o"></i></button>	\
 												</div>	\
 											</li>'); 
-				
 											
 		
 										}else{
@@ -367,6 +387,88 @@
 							}
 						});
 				});
+		
+				$(document).on("click",".breadcrumb-elem" , function(){
+						var _this_dir = $(this).text().trim();
+						var parent = '';
+						
+						var this_index_in_breadcrumb = $(this).closest('li').index();
+						$('#path').find('li').each(function(){
+							if ($(this).index() < this_index_in_breadcrumb) {
+								if ($(this).find('a').text() == 'root') {
+
+								}else{
+									parent += $(this).find('a').text() + '/';
+								}
+							}
+						});
+
+						parent = parent.substring(0, parent.length - 1);
+
+						var fd = new FormData();
+						fd.append('parent', parent);
+						fd.append('current_dir', _this_dir);
+
+						$.ajax({
+
+							url: '/xmltree/getchild/',
+							type: 'POST',
+							processData: false,
+							contentType: false,
+							csrfmiddlewaretoken: csrf_token,
+							data: fd,
+							success: function(data){
+								data = JSON.parse(data);
+								$('#path').find('li').each(function(){
+									if ($(this).index() > this_index_in_breadcrumb) {
+										$(this).remove();
+									}
+								});
+								$('.files').empty();
+								$('.dirs').empty();
+								if (data.files) {
+									for(i = 0; i<data.files.length;i++){
+										if (parent != "") {
+											$('.files').append('<li>	\
+												<span class="btn file-link-all" data-fileis="'+data.files[i]+'" data-href="/xmltree/showfilehtml/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'" ><i class="fa fa-file"></i> '+data.files[i]+'</span>	\
+												<div class="pull-right">	\
+													<button class="btn btn-success file-link" data-fileis="'+data.files[i]+'" data-href="/xmltree/showdata/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'"><i class="fa fa-pencil"></i></button>	\
+													<button class="btn btn-info add-record-link" data-fileis="'+parent+'/'+_this_dir+'/'+data.files[i]+'" data-href="/xmltree/Add_Record/?file_is='+parent+'/'+_this_dir+'/'+data.files[i]+'"><i class="fa fa-plus"></i></button>	\
+													<button class="btn btn-danger delete-record-link" data-fileis="'+data.files[i]+'"><i class="fa fa-trash-o"></i></button>	\
+												</div>	\
+											</li>'); 
+											
+		
+										}else{
+											$('.files').append('<li>	\
+												<span class="btn file-link-all" data-href="/xmltree/showdata/?file_is='+_this_dir+'/'+data.files[i]+'" ><i class="fa fa-file"></i> '+data.files[i]+'</span>	\
+												<div class="pull-right">	\
+													<button class="btn btn-success file-link" data-href="/xmltree/showdata/?file_is='+_this_dir+'/'+data.files[i]+'"><i class="fa fa-pencil"></i></button>	\
+													<button class="btn btn-info add-record-link" data-fileis="'+_this_dir+'/'+data.files[i]+'" data-href="/xmltree/Add_Record/?file_is='+_this_dir+'/'+data.files[i]+'"><i class="fa fa-plus"></i></button>	\
+													<button class="btn btn-danger delete-record-link" data-fileis="'+data.files[i]+'"><i class="fa fa-trash-o"></i></button>	\
+												</div>	\
+											</li>');
+
+											
+
+										}
+										
+									}
+								}
+								if (data.dirs) {
+									for(i = 0; i<data.dirs.length;i++){
+										$('.dirs').append('<li>	\
+											<span class="btn-dir btn text-warning "><i class="fa fa-folder"></i> '+data.dirs[i]+'</span> \
+											<div class="pull-right">	\
+												<button class="btn btn-danger delete-folder-link" data-fileis="'+data.dirs[i]+'"><i class="fa fa-trash-o"></i></button>	\
+											</div>	\
+										</li>');
+									}
+								};
+							}
+						});
+				});	
+
 		});
 </script>
 </body>

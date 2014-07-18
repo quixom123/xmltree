@@ -1,0 +1,17 @@
+<data>
+  <poster>poster name</poster>
+  <fanart>/media/quixom/24ECA49FECA46CAC/practice/xmltree/media/cloud.png</fanart>
+  <info>
+    <message>message</message>
+    <thumbnail>/media/quixom/24ECA49FECA46CAC/practice/xmltree/media/mobile.png</thumbnail>
+  </info>
+  <item>
+    <title>title</title>
+    <link>
+      <sublink>sublink1</sublink>
+      <sublink>sublink2</sublink>
+      <sublink>sublink3</sublink>
+    </link>
+    <thumbnail>thumb_path</thumbnail>
+  </item>
+</data>

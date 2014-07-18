@@ -19,7 +19,7 @@
 		<tr>
 		
 		<td  class='info' colspan='2'>
-			ITEM DATA
+			DIR DATA
 		</td>
 		</tr>
 		</table>		
@@ -27,7 +27,7 @@
 		
 		<div class='cantainer'>
 			<div class='cantainerleft'>
-				<label>Title </label>
+				<label>Name </label>
 			</div>
 			
 			<div class='cantainerright'>
@@ -42,12 +42,12 @@
 		<div class='cantainer'>
 			<div class='cantainerleft'>
 				<label>
-					Sub Link
+					Link
 				</label>
 			</div>
 			<div class='cantainerright' >
-				<input type='text' id='item-sublink' class='new-sublink form-control'> 
-				<input type='button' id='add-sublink' value='+ add sublink' class="btn btn-success btn-block">
+				<input type='text' id='item-link' class='new-sublink form-control'> 
+				
 			</div>
 		</div>
 		<br>
@@ -82,27 +82,7 @@
 	
 	<script src="/static/js/jquery.js"></script>
 	<script src="/static/js/bootstrap.min.js"></script>
-	<script>
-		$(document).ready(function(){
-			$('#add-sublink').click(function(){
-			              
 
-
-				form = $('.dv-sublink').clone();
-				form.removeAttr('id');
-				form.removeClass('hide , dv-sublink');
-				form.find('.sublink').removeClass('sublink').addClass('new-sublink');
-			
-				console.log(form);
-			
-				$('.newsublink').append(form);
-			
-			
-				
-			});
-		
-		});
-	</script>
 	
 	<script>
 	$(document).on('click','#save-xml-btn',function(){
@@ -123,19 +103,10 @@
 		fd.append('item_thumbnail', $('#thumb-file').val() );
 		fd.append('file_is', $(this).closest('#load-file').attr('data-fileis'));
 		fd.append('parent',parent);
-
-		
-
-		$('.new-sublink').each(function(){
-			if($(this).val() != ''){
-				arr.push($(this).val());
-			}
-		});
-		console.log(arr)
-		fd.append('sublink', arr);
+		fd.append('link', $('#item-link').val());
 	
 		$.ajax({
-				url: '/xmltree/Add_Record/',
+				url: '/xmltree/Add_Record_Dir/',
 				data: fd,
 				type: 'POST',
 				processData: false,
