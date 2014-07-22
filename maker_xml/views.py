@@ -48,20 +48,97 @@ def delete_xml_folder(request):
 		return HttpResponse("ok")
 	except Exception, e:
 		return HttpResponse("fail")
+
+
+@csrf_exempt		
+def insert_data_user_directory(folder_path,folder_name,parent_of_folder):
+	import datetime
+
+	now = datetime.datetime.now()
+
+	xml_file = os.path.join(XML_DIR, os.path.join(parent_of_folder,parent_of_folder + "_Directory.xml"))
+	tree = etree.parse(xml_file)
+	root = tree.getroot()
+	
+	etree.SubElement(root, 'name').text = folder_name
+	etree.SubElement(root, 'link').text = os.path.join(XML_DIR,os.path.join(parent_of_folder,folder_name + ".xml"))
+	etree.SubElement(root, 'thumbnail').text = "thumb nail"
+	etree.SubElement(root, 'date').text = str(now)
+	
+	
+	etree.ElementTree(root).write( xml_file, pretty_print=True)
+
+	
+	root = etree.Element("data")   # Root element of XML document
+	etree.SubElement(root, 'poster').text = "poster data here"
+	etree.SubElement(root, 'fanart').text = "fan art data here"
+	
+	file_name = os.path.join(folder_path,folder_name + ".xml")
+	
+	etree.ElementTree(root).write( os.path.join(XML_DIR, file_name), pretty_print=True)
+
+	return HttpResponse('ok')
+	
+@csrf_exempt		
+def insert_data_directory(parent_of_folder,folder_name):
+	
+	file_name = os.path.basename(parent_of_folder)
+	xml_file = os.path.join(XML_DIR, os.path.join(parent_of_folder, file_name + ".xml"))
+
+
+	tree = etree.parse(xml_file)
+	root = tree.getroot()
+	dir_root = etree.SubElement(root, 'dir')
+	etree.SubElement(dir_root, 'name').text = folder_name
+	etree.SubElement(dir_root, 'link').text = os.path.join(XML_DIR,os.path.join(parent_of_folder,folder_name + ".xml"))
+	etree.SubElement(dir_root, 'thumbnail').text = "thumb nail"
+	etree.ElementTree(root).write( xml_file, pretty_print=True)
+
+
+	root = etree.Element("data")   # Root element of XML document
+	etree.SubElement(root, 'poster').text = "poster data here"
+	etree.SubElement(root, 'fanart').text = "fan art data here"
+	
+	file_name = os.path.join(parent_of_folder,os.path.join(folder_name ,folder_name + ".xml"))
+	
+	etree.ElementTree(root).write( os.path.join(XML_DIR, file_name), pretty_print=True)
+	
+	return HttpResponse('ok')
+
 #@login_required
 @csrf_exempt
 def create_folder(request):
 	if request.method == "POST":
 		parent_of_folder = request.POST.get('parent')
+		parent_of_folder = parent_of_folder.replace('/', os.sep)
 		folder_name = request.POST.get('folder_name')
 		print parent_of_folder, folder_name, '###################'
 		folder_path = os.path.join(XML_DIR, os.path.join(parent_of_folder, folder_name))
-		print folder_path
+		
+		match = os.path.join(XML_DIR ,  os.path.join(request.user.username,os.path.basename(parent_of_folder)))
+		match1 = os.path.join(XML_DIR, parent_of_folder)
+		match1 = match1.replace("/", os.sep)
+		match  = match.replace("/", os.sep)
+		print "match::" , match , "== parent_of_folder::" , match1
+
 		if os.path.exists(folder_path):
 			return HttpResponse('fail')
 		else:
 			os.makedirs(folder_path)
+			if request.user.username == parent_of_folder:
+				
+				insert_data_user_directory(folder_path,folder_name,parent_of_folder)
+				return HttpResponse('ok')
+			elif match1 == match:
+				print "here"
+				insert_data_directory(parent_of_folder,folder_name)
+				return HttpResponse('ok')
+			else:
+				
+				return HttpResponse('ok')
 			return HttpResponse('ok')
+
+			
 
 #@login_required
 def tree_view(request):
@@ -190,7 +267,9 @@ def create_xml(request):
 def show_data(request):
 	if request.method == 'GET':
 		file_xml = request.GET.get('file_is')
-		print "xml file" , file_xml
+		
+		file_xml = file_xml.replace('/' , os.sep)
+		print ">>>>>>>" , file_xml
 		xml_file = os.path.join(XML_DIR, file_xml)
 		
 		tree = etree.parse(xml_file)
@@ -199,8 +278,8 @@ def show_data(request):
 		base_info = {}
 		base_info['poster'] = root.find('poster').text
 		base_info['fanart'] = root.find('fanart').text
-		base_info['message'] = root.find('info').find('message').text
-		base_info['thumbnail'] = root.find('info').find('thumbnail').text
+		#base_info['message'] = root.find('info').find('message').text
+		#base_info['thumbnail'] = root.find('info').find('thumbnail').text
 
 		items = []		
 		for idx_item, item in enumerate(root.findall('item')):
@@ -232,7 +311,43 @@ def get_child_tree(request):
 @csrf_exempt		
 def list_out(request):
 	directory = build(os.path.join(XML_DIR, request.user.username ))
+
+	file_name = os.path.join(XML_DIR , os.path.join(request.user.username , request.user.username + "_Directory.xml"))
+	flag1 = os.path.isfile(file_name)
+	if request.POST:
+		create_xml_user_directory(file_name,request.POST.get('poster_name'),request.POST.get('poster_file'))
+		return render(request, 'listout.html', {'tree': directory})
+	elif flag1 == False:
+		return render(request,'user_directory_xml.html')
+	else:
+		pass
+		
+		
+
 	return render(request, 'listout.html', {'tree': directory})
+
+@csrf_exempt		
+def create_xml_user_directory(file_name,poster_name_is,poster_file_is):
+	
+	flag1 = os.path.isfile(file_name)
+	
+	if flag1 == False:
+		
+
+		#create xml data
+		
+		root = etree.Element("data")   # Root element of XML document
+		etree.SubElement(root, 'poster').text = poster_name_is
+		etree.SubElement(root, 'fanart').text = poster_file_is
+		
+		
+		
+		etree.ElementTree(root).write( os.path.join(XML_DIR, file_name), pretty_print=True)
+
+		return HttpResponse('successfully create xml file')
+	else:
+		return HttpResponse("file already exist")
+
 
 #@login_required
 def build(root_path):

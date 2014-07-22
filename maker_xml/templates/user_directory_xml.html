@@ -1,0 +1,88 @@
+<html>
+<head>
+{% load staticfiles %}
+<link rel='stylesheet' href="/static/css/bootstrap.min.css" type='text/css'>
+<link rel='stylesheet' href="/static/css/style.css" type='text/css'>
+<style type="text/css">
+	.info{
+		background-color: #333 !important;
+		padding: 10px;
+	}
+	.tbmain tr{
+		padding: 15px !important;
+	}
+</style>
+</head>
+<body>
+<center>
+	<div class='main' style="background-color:#666; color:white;">
+	<div class='dv1'>
+		<table class='tbmain'>
+		
+		
+		<tr>
+		<td  class='info' colspan='2'>
+		POSTER DATA
+		</td>
+		</tr>
+		
+		<tr>
+			<td style="color:white;">Poster name </td>
+			<td><input type="text" id="poster-name" class="form-control"></td>
+		</tr>
+		
+		<tr>
+			<td style="color:white;">Fan Art </td>
+			<td><input type="text" id="poster-file" class="form-control"></td>
+		</tr>
+		</table>
+		
+		</div>
+	
+	
+	
+	<div style='padding-bottom:10px;'>
+		<input type='Button' value='Add Poster' id='create-xml-btn' class="btn btn-success"/>
+		
+	</div>
+	</div>
+	
+	<!-- script code -->
+	
+	<script src="/static/js/jquery.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+		var csrf_token = '{{ csrf_token }}';
+		var fd = new FormData();
+		$(document).on('click', '#create-xml-btn', function(){
+
+			
+
+			
+			var poster_name = $('#poster-name').val();
+			var poster_file = $('#poster-file').val();
+			
+			fd.append("poster_name", poster_name);
+			fd.append("poster_file", poster_file);
+			
+					
+				$.ajax({
+					url: '/xmltree/listout/',
+					type: 'POST',
+					processData: false,
+					contentType: false,
+					csrfmiddlewaretoken: csrf_token,
+					data: fd,
+					async: false,
+					success: function(data){
+						alert(data);
+					}
+				});
+			});
+			
+		
+		
+	</script>
+	
+	
+	
